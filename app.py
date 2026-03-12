@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from helper import preprocessing, get_prediction   # only need these
+from helper import preprocessing, get_prediction   
 from logger import logging
 
 app = Flask(__name__)
@@ -31,9 +31,8 @@ def my_post():
     logging.info(f'Text : {text}')
 
     try:
-        # Only pass raw text — let get_prediction handle preprocessing & vectorization
-        prediction = get_prediction(text)
-        logging.info(f'Prediction : {prediction}')
+        prediction, confidence = get_prediction(text)   # ← now tuple
+        logging.info(f'Prediction : {prediction} | Confidence: {confidence}%')
 
         if prediction == 'negative':
             global negative
@@ -42,12 +41,15 @@ def my_post():
             global positive
             positive += 1
 
-        reviews.insert(0, text)
+        # Store review as dictionary with confidence
+        reviews.insert(0, {
+            "text": text,
+            "sentiment": prediction,
+            "confidence": confidence
+        })
 
     except Exception as e:
         logging.error(f"Error processing feedback: {str(e)}")
-        # Optional: show error to user, but for now just log and continue
-        pass
 
     return redirect(request.url)
 

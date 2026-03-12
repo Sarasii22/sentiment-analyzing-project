@@ -50,4 +50,11 @@ def get_prediction(text):
     
     threshold = 0.60   # your last used value
     
-    return "negative" if proba_negative >= threshold else "positive"
+    if proba_negative >= threshold:
+        label = "negative"
+        confidence = round(proba_negative * 100, 1)   # % chance of negative
+    else:
+        label = "positive"
+        confidence = round((1 - proba_negative) * 100, 1)   # % chance of positive
+    
+    return label, confidence   # ← return tuple now

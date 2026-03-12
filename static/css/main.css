@@ -51,3 +51,83 @@ textarea {
   text-underline-position: under;
   cursor: pointer;
 }
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    height: 100vh;
+}
+
+.left-side {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.left-side img {
+    max-width: 80%;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.right-side {
+    background: white;
+    overflow-y: auto;
+}
+
+.progress-bar {
+    height: 24px;
+    background: #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+}
+
+.positive-fill {
+    background: #28a745;
+    transition: width 0.6s ease;
+}
+
+.negative-fill {
+    background: #dc3545;
+    transition: width 0.6s ease;
+}
+
+.stats-text {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.review-card {
+    padding: 15px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-left: 5px solid;
+}
+
+.review-card.positive {
+    border-left-color: #28a745;
+}
+
+.review-card.negative {
+    border-left-color: #dc3545;
+}
+
+.review-text {
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+}
+
+.review-meta {
+    font-size: 0.9rem;
+}
+
+.badge-success, .badge-danger {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+}
+
+.confidence {
+    font-weight: 500;
+    color: #6c757d;
+}

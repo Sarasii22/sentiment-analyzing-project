@@ -1,52 +1,101 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <Link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}"></Link>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Sentiment Feedback Analyzer</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
 
-    <div class="split left">
-        <div class="centered">
-            <img src="../static/products/prod1.jpg" alt="">
+<div class="container-fluid h-100">
+    <div class="row h-100">
+
+        <!-- Left Side - Image -->
+        <div class="col-lg-5 col-md-6 d-none d-md-flex align-items-center justify-content-center left-side">
+            <img src="{{ url_for('static', filename='products/prod1.jpg') }}" alt="Product" class="img-fluid rounded">
         </div>
-    </div>
 
+        <!-- Right Side - Content -->
+        <div class="col-lg-7 col-md-6 right-side">
 
-    <div class="split right">
-        <div class="container mt-5 mb-5">
-            <div class="d-flex justify-content-center row">
-                <div class="d-flex flex-column col-md-8">
-                    <div>
-                        <label for="">Positive Sentiments : {{ data.positive }}</label>
+            <div class="container mt-4 mb-5">
+                <h2 class="text-center mb-4">Customer Feedback Analyzer</h2>
+
+                <!-- Statistics Bar -->
+                <div class="stats-container mb-4">
+                    <div class="progress-bar">
+                        <div class="positive-fill" 
+                             style="width: {{ (data.positive / (data.positive + data.negative) * 100) if (data.positive + data.negative) > 0 else 0 }}%;">
+                        </div>
+                        <div class="negative-fill" 
+                             style="width: {{ (data.negative / (data.positive + data.negative) * 100) if (data.positive + data.negative) > 0 else 0 }}%;">
+                        </div>
                     </div>
-                    <div>
-                        <label for="">Negative Sentiments : {{ data.negative }}</label>
+
+                    <div class="stats-text mt-2">
+                        <strong>Total Feedback:</strong> {{ data.positive + data.negative }}  
+                        <span class="ml-3 text-success">Positive: {{ data.positive }} ({{ ((data.positive / (data.positive + data.negative) * 100)|round(1)) if (data.positive + data.negative) > 0 else 0 }}%)</span>
+                        <span class="ml-3 text-danger">Negative: {{ data.negative }} ({{ ((data.negative / (data.positive + data.negative) * 100)|round(1)) if (data.positive + data.negative) > 0 else 0 }}%)</span>
                     </div>
-                    <div>
-                        <form method="post">
-                          <textarea name="text"></textarea>
-                          <input type="submit">
+                </div>
+
+                <!-- Feedback Form -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="POST">
+                            <div class="form-group">
+                                <label for="text">Share your feedback:</label>
+                                <textarea 
+                                    class="form-control" 
+                                    name="text" 
+                                    rows="4" 
+                                    placeholder="Tell us what you think about the product... (e.g., good quality, fast delivery, bad packaging, etc.)"
+                                    required
+                                ></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Submit Feedback</button>
                         </form>
                     </div>
-
-                    <div class="coment-bottom bg-white p-2 px-4">
-                        {% for review in data.reviews %}
-                        <hr/>
-                          <div
-                              class="commented-section mt-2">
-                              <div class="d-flex flex-row align-items-center commented-user">
-                                  </div>
-                                  <div class="text-nowrap bd-highlight"><span>{{ review }}</span></div>
-                                  <hr/>
-                        {% endfor %}
-                      </div>
                 </div>
+
+                <!-- Reviews List -->
+                <h4 class="mb-3">Recent Feedback</h4>
+
+                {% if data.reviews %}
+                    {% for review in data.reviews %}
+                    <div class="review-card {{ review.sentiment }} mb-3">
+                        <p class="review-text mb-2">{{ review.text }}</p>
+                        <div class="review-meta d-flex justify-content-between align-items-center">
+                            <span class="badge badge-{{ 'success' if review.sentiment == 'positive' else 'danger' }}">
+                                {{ review.sentiment | capitalize }}
+                            </span>
+                            <span class="confidence text-muted">
+                                Confidence: {{ review.confidence }}%
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        No feedback yet. Be the first to share your opinion!
+                    </div>
+                {% endif %}
             </div>
+
         </div>
     </div>
+</div>
+
+<!-- Bootstrap JS (optional - for interactive components if needed later) -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
