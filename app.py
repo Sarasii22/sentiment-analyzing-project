@@ -1,6 +1,5 @@
-from flask import Flask, render_template,request, redirect
-#import functions from helper.py for preprocessing, vectorization and prediction 
-from helper import preprocessing, vectorizer, get_prediction
+from flask import Flask, render_template, request, redirect
+from helper import preprocessing, get_prediction   # only need these
 from logger import logging
 
 app = Flask(__name__)
@@ -19,33 +18,38 @@ def index():
     data['negative'] = negative
 
     logging.info('========== Open home page ============')
-
     return render_template('index.html', data=data)
 
-@app.route("/", methods = ['post'])
+@app.route("/", methods=['POST'])
 def my_post():
-    text = request.form['text']
+    text = request.form.get('text', '').strip()
+    
+    if not text:
+        logging.warning("Empty feedback submitted")
+        return redirect(request.url)
+
     logging.info(f'Text : {text}')
 
-    preprocessed_txt = preprocessing(text)
-    logging.info(f'Preprocessed Text : {preprocessed_txt}')
+    try:
+        # Only pass raw text — let get_prediction handle preprocessing & vectorization
+        prediction = get_prediction(text)
+        logging.info(f'Prediction : {prediction}')
 
-    vectorized_txt = vectorizer(preprocessed_txt)
-    logging.info(f'Vectorized Text : {vectorized_txt}')
+        if prediction == 'negative':
+            global negative
+            negative += 1
+        else:
+            global positive
+            positive += 1
 
-    prediction = get_prediction(vectorized_txt)
-    logging.info(f'Prediction : {prediction}')
+        reviews.insert(0, text)
 
-    if prediction == 'negative':
-        global negative
-        negative += 1
-    else:
-        global positive
-        positive += 1
-    
-    reviews.insert(0, text)
-    #refres the page after post request
+    except Exception as e:
+        logging.error(f"Error processing feedback: {str(e)}")
+        # Optional: show error to user, but for now just log and continue
+        pass
+
     return redirect(request.url)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)  # debug=True is helpful during development
