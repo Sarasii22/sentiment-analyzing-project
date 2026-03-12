@@ -13,11 +13,34 @@ negative = 0
 
 @app.route("/")
 def index():
+    global reviews, positive, negative
+
+    # Calculate average rating (0–5 stars)
+    if reviews:
+        total_reviews = len(reviews)
+        total_confidence = 0
+        
+        for r in reviews:
+            conf = r['confidence'] / 100.0  # 0.0 to 1.0
+            if r['sentiment'] == 'positive':
+                total_confidence += conf
+            else:
+                total_confidence -= conf  # negative reduces score
+
+        avg_score = (total_confidence / total_reviews + 1) / 2  # normalize -1..1 → 0..1
+        avg_rating = round(avg_score * 5, 1)  # 0.0 to 5.0
+        rating_percentage = round(avg_score * 100, 1)
+    else:
+        avg_rating = 0.0
+        rating_percentage = 0.0
+
+    data['avg_rating'] = avg_rating
+    data['rating_percentage'] = rating_percentage
     data['reviews'] = reviews
     data['positive'] = positive
     data['negative'] = negative
 
-    logging.info('========== Open home page ============')
+    logging.info(f'========== Open home page ============ (Rating: {avg_rating}/5)')
     return render_template('index.html', data=data)
 
 @app.route("/", methods=['POST'])
